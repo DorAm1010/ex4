@@ -6,16 +6,16 @@
 #define EX4_SEARCHABLE_H
 #include "state.h"
 #include "solution.h"
+#include "Problem.h"
 #include <list>
 #endif //EX4_SEARCHABLE_H
 
 
 template <typename T>
 
-class ISearchable {
+class ISearchable : public Problem {
 public:
     virtual State<T>* getInitialState() = 0;
-    virtual bool isGoalState(State<T>*) = 0;
+    virtual bool isGoalState(State<T>*);
     virtual std::list<std::pair<int, State<T>>> getAllPossibleStates() = 0;
-    virtual Solution* produceSolution(State<T>*) = 0;
 };

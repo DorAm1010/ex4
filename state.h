@@ -9,13 +9,50 @@ template <class T>
 class State {
 private:
     T state;
-    double cost;
+    int myCost;
+    int costOfBestPathToMe;
     State<T>* cameFrom;
 public:
-    State(T s, double c, State<T>* st);
-    virtual bool isEqual(State<T>*) = 0;
-    int getCost();
-    void setCost(int);
+    State(T s, int c){
+        state = s;
+        myCost = c;
+        cameFrom = nullptr;
+
+    };
+
+    virtual bool isEqual(State<T>* other) {
+        if(state == other->getSate()) {
+            return true;
+        }
+
+        return false;
+    };
+
+    int getMyCost(){
+        return myCost;
+    };
+
+    void setMyCost(int newCost){
+        myCost = newCost;
+    };
+
+    T getSate() {
+        return state;
+    };
+
+    int getCostOfBestPathToMe() {
+        return costOfBestPathToMe;
+    }
+
+    void setCostOfBestPathToMe(int newCost) {
+        costOfBestPathToMe = newCost;
+    };
+
+    State<T> getWhereICameFrom() {
+        return cameFrom;
+    }
+
+
 };
 
 

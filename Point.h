@@ -15,6 +15,14 @@ public:
     Point(int, int);
 
     Point();
+
+    bool operator==(Point other) {
+        if(x == other.getX() && y == other. getY()){
+            return true;
+        }
+
+        return false;
+    }
 };
 
 
