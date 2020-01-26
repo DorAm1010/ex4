@@ -10,6 +10,10 @@
 #include "matrixSolutionMaker.h"
 
 template <typename P, typename S, typename T>
+/**
+ * adapt a searcher, in order of keeping the right
+ * class hierarchy.
+ */
 class SolveSearchAdapter : public Solver<P,S> {
     ISearcher<T,S>* searcher;
 public:
