@@ -20,6 +20,10 @@
 
 template <typename P, typename S>
 
+/**
+ * a server that can connect up to 10 clients at the same time.
+ * it sends the clients to a client handler that will handle them.
+ */
 class MyParallelServer : public server_side::Server<P,S> {
     int socketfd;
 
