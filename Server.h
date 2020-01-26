@@ -6,8 +6,14 @@
 namespace server_side {
     template <typename T, typename S>
     class Server {
-    public:
+    public: 
+        /**
+         * opens a port on the port given.
+         */
         virtual void open(int port, ClientHandler<T,S>* clientHandler) = 0;
+        /**
+         * stop running of server.
+         */
         virtual void stop() = 0;
     };
 }
