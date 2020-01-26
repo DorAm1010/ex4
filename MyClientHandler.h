@@ -28,10 +28,14 @@ public:
         cacheManager = cacheManager1;
     }
 
+    /**
+    * handle client request, solve a matrix by input from client.
+    **/
     void handleClient(int socket) override  {
         Matrix matrix;
         int startX = 0, startY = 0, endX = 0, endY = 0;
         char input[65536] = {0};
+        // check if starting point was defined
         bool startP_defined = false;
 
         int valread = read(socket, input, 1024);
@@ -48,10 +52,12 @@ public:
 
             std::string helper(buffer);
 
+            // keyword end indicates client entered all specified inputs
             if(helper.find("end") != std::string::npos) {
                 strcat(input, buffer);
                 break;
             }
+            // concatenate to one input char array
             strcat(input, buffer);
             helper = "";
         }
@@ -68,14 +74,18 @@ public:
 
             size = helper.size();
 
+            // iterate current line of input
             for(int i = 0; i < size; i++){
+                // while helper.at(i) points to a number
                 while(helper.at(i) != ' ' && helper.at(i) != ',' && helper.at(i) != '\r' && helper.at(i) != '\n'){
+                    // concatente to a string dummy
                     stringNumber += helper.at(i);
                     i++;
                     if(i >= size) {
                         break;
                     }
                 }
+                // to avoid errors check if stringNumber actually contains something
                 if(!stringNumber.empty()) {
                     matrix_rows.push_back(stoi(stringNumber));
                 }
@@ -87,15 +97,18 @@ public:
                 matrix.addRow(matrix_rows);
             } else if (!startP_defined){
 
+                // set starting point
                 startX = matrix_rows.at(0);
                 startY = matrix_rows.at(1);
                 startP_defined = true;
 
             } else {
+                // set end point
                 endX = matrix_rows.at(0);
                 endY = matrix_rows.at(1);
 
 
+                // set problem matrix containing client input
                 MatrixProblem matrixProblem(matrix, Point(startX, startY), Point(endX, endY));
 
                 S solution;
@@ -107,9 +120,9 @@ public:
                     solution = cacheManager->getSolution(matrixProblem);
                 }
 
+                // send solution to client
                 std::string stringSolution = solution;
                 send(socket, stringSolution.c_str(), stringSolution.size(), 0);
-                //std::cout << solution << std::endl;
             }
         }
     }
