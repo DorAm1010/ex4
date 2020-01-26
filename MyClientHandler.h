@@ -9,91 +9,113 @@
 #include <unistd.h>
 #include <unordered_map>
 #include <cstring>
+#include <sstream>
+#include <sys/socket.h>
 #include "ClientHandler.h"
 #include "MatrixProblem.h"
 #include "Solver.h"
 #include "CacheManager.h"
-#include "Solution.h"
 
 template <class P, class S>
-class MyClientHandler : public ClientHandler {
-    Solver<P, S> solver;
-    CacheManager<P, S> cacheManager;
+class MyClientHandler : public ClientHandler<P,S> {
+    Solver<P,S>* solver;
+    CacheManager<P, S>* cacheManager;
 
 public:
-    MyClientHandler(const CacheManager<P, S>& cacheManager1, const Solver<P,S>& solver1) {
+
+    MyClientHandler(CacheManager<P, S>* cacheManager1, Solver<P,S>* solver1) {
         solver = solver1;
         cacheManager = cacheManager1;
     }
 
     void handleClient(int socket) override  {
-        std::string output;
-        char buffer[1024];
-        char* input_info;
-        std::vector<int> matrix_rows;
         Matrix matrix;
-        bool row_defined = false;
-        int start_x = 0, start_y = 0, end_x = 0, end_y = 0;
+        int startX = 0, startY = 0, endX = 0, endY = 0;
+        char input[65536] = {0};
+        bool startP_defined = false;
 
-        // read from client
-        int valread = read(socket, buffer, 1024);
+        int valread = read(socket, input, 1024);
         if (valread == -1)
-            std::cout << "Could Not Read Client Input" << std::endl;
+            throw "Could Not Read Client Input";
 
-        // drop \n char
-        input_info = strtok(buffer, " ,\n");
 
-        while (strcmp(input_info, "end") != 0) {
-            while (input_info != nullptr) {
-                input_info = strtok(nullptr, " ,");
-                try {
-                    matrix_rows.push_back(atoi(input_info));
-                } catch (std::exception e) {
-                    std::cout << "Error converting to integer at MyClientHandler";
-                    std::cout << e.what() << std::endl;
-                    return;
+        while (true) {
+            char buffer[1024] = {0};
+
+            valread = read(socket, buffer, 1024);
+            if (valread == -1)
+                throw "Could Not Read Client Input";
+
+            std::string helper(buffer);
+
+            if(helper.find("end") != std::string::npos) {
+                strcat(input, buffer);
+                break;
+            }
+            strcat(input, buffer);
+            helper = "";
+        }
+
+        std::stringstream stream(input);
+        std::string helper, stringNumber;
+        size_t size;
+
+        while(getline(stream, helper)) {
+            std::vector<int> matrix_rows;
+
+            if(helper.find("end") != std::string::npos)
+                continue;
+
+            size = helper.size();
+
+            for(int i = 0; i < size; i++){
+                while(helper.at(i) != ' ' && helper.at(i) != ',' && helper.at(i) != '\r' && helper.at(i) != '\n'){
+                    stringNumber += helper.at(i);
+                    i++;
+                    if(i >= size) {
+                        break;
+                    }
                 }
+                if(!stringNumber.empty()) {
+                    matrix_rows.push_back(stoi(stringNumber));
+                }
+                stringNumber = "";
             }
 
             if (matrix_rows.size() > 2) {
                 // add another row to matrix
                 matrix.addRow(matrix_rows);
+            } else if (!startP_defined){
+
+                startX = matrix_rows.at(0);
+                startY = matrix_rows.at(1);
+                startP_defined = true;
+
             } else {
-                // get start and end points, meaning we now know matrix_tows contains
-                // (start_point_i, start_point_j), and next values will be
-                // (end_point-i, end_point_j)
+                endX = matrix_rows.at(0);
+                endY = matrix_rows.at(1);
 
-                start_x = matrix_rows.at(0);
-                start_y = matrix_rows.at(1);
 
-                valread = read(socket, buffer, 1024);
-                if (valread == -1)
-                    std::cout << "Could Not Read Client Input" << std::endl;
+                MatrixProblem matrixProblem(matrix, Point(startX, startY), Point(endX, endY));
 
-                input_info = strtok(buffer, " ,\n");
-                end_x = atoi(input_info);
+                S solution;
 
-                input_info = strtok(nullptr, " ,");
-                end_y = atoi(input_info);
+                if (!cacheManager->hasSolution(matrixProblem)) {
+                    solution = solver->solve(matrixProblem);
+                    cacheManager->saveSolution(solution, matrixProblem);
+                } else {
+                    solution = cacheManager->getSolution(matrixProblem);
+                }
+
+                std::string stringSolution = solution;
+                send(socket, stringSolution.c_str(), stringSolution.size(), 0);
+                //std::cout << solution << std::endl;
             }
-
-            valread = read(socket, buffer, 1024);
-            if (valread == -1)
-                std::cout << "Could Not Read Client Input" << std::endl;
-
-            input_info = strtok(buffer, " ,\n");
         }
+    }
 
-        MatrixProblem matrixProblem(matrix, Point(start_x, start_y), Point(end_x, end_y));
-
-        Solution solution;
-
-        if (!cacheManager->hasSolution(matrixProblem)) {
-            solution = solver->solve(matrixProblem);
-            cacheManager->saveSolution(solution, matrixProblem);
-        } else {
-            solution = cacheManager->getSolution(matrixProblem);
-        }
+    MyClientHandler* clone() override {
+        return new MyClientHandler(this->cacheManager->clone(), this->solver->clone());
     }
 };
 #endif //EX4_MYCLIENTHANDLER_H

@@ -11,51 +11,71 @@
 
 template<typename P, typename S>
 class FileCacheManager : public CacheManager<P, S> {
-    static int solution_count;
-    std::fstream save_file;
+    std::hash<std::string> hash;
     std::unordered_map<std::string , std::string> fileMap;
 
-    FileCacheManager() {
-        solution_count = 0;
-    }
-
     bool hasSolution(P p) override {
-        std::string key = p.to_string();
-        return fileMap.find(key) != fileMap.end();
+        std::ifstream save_file;
+        std::string key = p.toString();
+        std::string filename = "Solution" + std::to_string(hash(key)) + ".txt";
+        save_file.open(filename, std::ios::in | std::ios::binary);
+        if(!save_file) {
+            return false;
+        }
+        return true;
     }
 
     S getSolution(P p) override {
         if (!hasSolution(p)) {
             throw "No solution for problem!";
         }
-        std::string key = p.to_string();
-
+        std::ifstream save_file;
+        std::string key = p.toString();
+        std::string filename = "Solution" + std::to_string(hash(key)) + ".txt";
         S object;
+        size_t size;
         // exists in file system
-        save_file.open("Solution" + solution_count, std::ios::in | std::ios::binary);
+        save_file.open(filename, std::ifstream::in | std::ifstream::binary);
 
-        if (!save_file) {
+        if (!save_file.is_open()) {
             throw "Unable To Open File At get()";
         }
 
-        save_file.read((char *) &object, sizeof(object));
+        // read the size
+        save_file.read(reinterpret_cast<char *>(&size), sizeof(size)  );
+
+        // Allocate a string, make it large enough to hold the input
+        object.resize(size);
+
+        // read the text into the string
+        save_file.read(&object[0],  object.size());
         save_file.close();
 
         return object;
     }
 
     void saveSolution(S solution, P problem) override {
-        std::string key = problem.to_string();
-        fileMap[key] = "Solution" + solution_count;
+        std::ofstream save_file;
+        std::string key = problem.toString();
+        std::string filename = "Solution" + std::to_string(hash(key)) + ".txt";
+        fileMap.insert({key, filename});
+        size_t size = solution.size();
 
         // update in file system
-        save_file.open("Solution" + solution_count, std::ios::out | std::ios::binary);
-        if (!save_file) {
+        save_file.open(filename, std::ofstream::binary | std::ofstream::out);
+        if (!save_file.is_open()) {
             throw "Unable To Open File At insert()";
         }
-        save_file.write((char*)&solution, sizeof(solution));
+
+        save_file.write(reinterpret_cast<char *>(&size), sizeof(size));
+        save_file.write(solution.c_str(), solution.size());
         save_file.close();
-        solution_count++;
+    }
+
+
+public:
+    FileCacheManager<P, S>* clone() override {
+        return new FileCacheManager<P, S>();
     }
 };
 #endif //EX4_FILECACHEIMPL_H

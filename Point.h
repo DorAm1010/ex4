@@ -1,7 +1,6 @@
 //
 // Created by dor on 1/15/20.
 //
-
 #ifndef EX4_POINT_H
 #define EX4_POINT_H
 class Point {
@@ -16,13 +15,7 @@ public:
 
     Point();
 
-    bool operator==(Point other) {
-        if(x == other.getX() && y == other. getY()){
-            return true;
-        }
-
-        return false;
-    }
+    bool operator==(Point other);
 };
 
 

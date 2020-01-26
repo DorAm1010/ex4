@@ -5,40 +5,38 @@
 #ifndef EX4_STATE_H
 #define EX4_STATE_H
 
-template <class T>
+#include <values.h>
+#include <vector>
+
+template <typename T>
 class State {
 private:
     T state;
-    int myCost;
-    int costOfBestPathToMe;
     State<T>* cameFrom;
+    int myCost;
+    int distanceFromGoal;
+    int costOfBestPathToMe;
 public:
-    State(T s, int c){
+    State(T s, int c, int distance) {
         state = s;
         myCost = c;
         cameFrom = nullptr;
+        distanceFromGoal = distance;
+        costOfBestPathToMe = MAXINT;
+    }
 
-    };
+    bool isEqual(State<T>* other) {
+        return state == other->getState();
 
-    virtual bool isEqual(State<T>* other) {
-        if(state == other->getSate()) {
-            return true;
-        }
-
-        return false;
     };
 
     int getMyCost(){
         return myCost;
     };
 
-    void setMyCost(int newCost){
-        myCost = newCost;
-    };
-
-    T getSate() {
+    T getState() const {
         return state;
-    };
+    }
 
     int getCostOfBestPathToMe() {
         return costOfBestPathToMe;
@@ -48,10 +46,17 @@ public:
         costOfBestPathToMe = newCost;
     };
 
-    State<T> getWhereICameFrom() {
+    State<T>* getWhereICameFrom() {
         return cameFrom;
     }
 
+    void setWhereICameFrom(State<T>* father) {
+        cameFrom = father;
+    }
+
+    int getDistanceFromGoal() const {
+        return distanceFromGoal;
+    }
 
 };
 

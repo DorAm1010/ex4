@@ -9,6 +9,10 @@ Matrix::Matrix() {
     columns = 0;
 }
 
+/**
+ * add a row to the matrix.
+ * @param values vector of values in the new row.
+ */
 void Matrix::addRow(const std::vector<int>& values) {
     // matrix columns size was initialized
     int row_size = values.size();
@@ -49,6 +53,4 @@ const std::vector<int> &Matrix::getRow(int i) const {
 const string &Matrix::getStringRepresentaion() const {
     return string_representaion;
 }
-
-
 

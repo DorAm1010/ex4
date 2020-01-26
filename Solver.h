@@ -5,11 +5,9 @@
 #ifndef EX4_SOLVER_H
 #define EX4_SOLVER_H
 template <typename P, typename S>
-class Solver{
-protected:
-    P problem;
-    S solution;
+class Solver {
 public:
     virtual S solve(P) = 0;
+    virtual Solver* clone() = 0;
 };
 #endif //EX4_SOLVER_H

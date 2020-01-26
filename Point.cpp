@@ -17,3 +17,7 @@ int Point::getX() const {
 int Point::getY() const {
     return y;
 }
+
+bool Point::operator==(Point other) {
+    return x == other.getX() && y == other. getY();
+}

@@ -9,6 +9,10 @@
 #include <vector>
 #include <string>
 
+/**
+ * this class represent a matrix, using
+ * a vector of vectors.
+ */
 class Matrix {
 private:
     int rows, columns;
