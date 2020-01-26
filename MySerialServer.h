@@ -16,6 +16,10 @@
 
 
 template <typename P, typename S>
+/**
+ * server that connect with clients one after another.
+ * it sends each client to a client handker, that will handle hom.
+ */
 class MySerialServer : public server_side::Server<P,S> {
 
     void stop() override {
