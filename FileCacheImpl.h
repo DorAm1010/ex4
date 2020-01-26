@@ -10,6 +10,9 @@
 #include "CacheManager.h"
 
 template<typename P, typename S>
+/**
+ * cache manager that saves solutions into files.
+ */
 class FileCacheManager : public CacheManager<P, S> {
     std::hash<std::string> hash;
     std::unordered_map<std::string , std::string> fileMap;
