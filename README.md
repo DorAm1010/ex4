@@ -1,5 +1,5 @@
 # ex4
-this project runs a parallel server able to recieve up to 10 clients where each client is delivering an nxn(square matrix) maze from a client, where each cell of that maze contains the cost of stepping into it and each cell is comma seperated and each row is separated by newline character, a starting point indicated as i,j then newline character sequented by an end point indicated the same and returning the best path to get out of the maze.
+this project runs a parallel server able to recieve up to 10 clients where each client is delivering a problem represented as an nxn(square matrix) maze from a client, where each cell of that maze contains the cost of stepping into it and each cell is comma seperated and each row is separated by newline character, a starting point indicated as i,j then newline character sequented by an end point indicated the same and returning the best path to get out of the maze, essentially solving the clients problem.
 
 ## Installation
 in order to run this program you need a c++(g++) compiler.
@@ -21,3 +21,11 @@ You could also get the program to run a serial server instead of a parallel, up 
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## Additional information
+Because this program is mostly generic it is open for extension as long as you implemnt necessary requirements, like specifing what kind of problem do you have (for instance this projects Problem interface), what kind of solution, as long as it can be represented by string.
+To get some grasp of what you need to do if you want your own generic behaviour heres our approach to the project:
+
+(1) P -> Our problem is represented as a square matrix having a string representation(toString method).
+(2) S -> Our solution is a std::string object, you of course could run the projects like so, however if you choose not to, you would require to implement some methods of string, such as .c_str(), operator+= for concatenation and so on, do with it as you wish.
+(3) T -> Our generic T is represented as a Point object that has a .getX() and .getY() methods for location.
