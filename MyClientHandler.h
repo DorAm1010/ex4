@@ -17,6 +17,11 @@
 #include "CacheManager.h"
 
 template <class P, class S>
+/**
+ * this client handler get each time a problem from client,
+ * and returns the solution for the problem. this continue
+ * until the client sends "end".
+ */
 class MyClientHandler : public ClientHandler<P,S> {
     Solver<P,S>* solver;
     CacheManager<P, S>* cacheManager;
